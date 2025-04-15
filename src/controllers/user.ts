@@ -27,7 +27,7 @@ export const requestMessage = async (req: UserRequestRequest, res: any) => {
 
     const fullMessage = `${message} - nonce: ${nonce}`;
 
-    return res.json({ message: fullMessage });
+    return res.json({ data: fullMessage });
   } catch (error) {
     res.status(500).json({ message: "Server error.", error });
   }
