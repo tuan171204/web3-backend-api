@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 import { urlRegex } from "../configs/common";
 
 const TokenSchema = new mongoose.Schema({
+  tokenAddress: { type: String, required: true, unique: true, lowercase: true },
   name: { type: String, required: true },
   symbol: { type: String, required: true },
-  decimals: { type: Number, required: true, min: 1, max: 18 },
-  supply: { type: Number, required: true },
+  maxSupply: { type: String, required: true },
+  amountPerMint: { type: String, required: true },
+  mintFee: { type: String, required: true },
   image: { type: String, required: true },
   description: { type: String, required: true, maxlength: 500 },
   websiteUrl: {
@@ -40,7 +42,7 @@ const TokenSchema = new mongoose.Schema({
       message: "Invalid URL.",
     },
   },
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  owner: { type: String, required: true, lowercase: true },
 });
 
 export default mongoose.model("Token", TokenSchema);

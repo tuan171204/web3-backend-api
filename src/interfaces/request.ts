@@ -36,23 +36,20 @@ export interface AuthRequest extends Request {
 
 export interface CreateTokenRequest extends Request {
   body: {
-    name: string;
-    symbol: string;
-    decimals: number;
-    supply: number;
+    txHash: string;
     description: string;
     websiteUrl?: string;
     telegramUrl?: string;
     discordUrl?: string;
     xUrl?: string;
   };
-  user?: { userId: string };
+  user?: { userId: string; walletAddress: string };
   file?: Express.Multer.File;
 }
 
 export interface TokenRequest extends Request {
   params: {
-    id: string;
+    address: string;
   };
 }
 
@@ -64,7 +61,7 @@ export interface TokensRequest extends Request {
 }
 
 export interface UserTokensRequest extends Request {
-  user?: { userId: string };
+  user?: { walletAddress: string };
   query: {
     page?: string;
     limit?: string;

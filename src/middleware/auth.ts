@@ -23,7 +23,10 @@ export const authenticateToken = (
       userId: string;
       walletAddress: string;
     };
-    req.user = decoded;
+    req.user = {
+      ...decoded,
+      walletAddress: decoded.walletAddress.toLowerCase(),
+    };
     next();
   } catch (error) {
     res.status(403).json({ message: "Forbidden: Invalid token." });

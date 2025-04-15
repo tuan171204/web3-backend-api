@@ -7,23 +7,16 @@ import {
   TokensRequest,
   UserTokensRequest,
 } from "../interfaces/request";
+import { getTokenDeployedFromTxHash } from "../services/token";
 import { urlRegex } from "../configs/common";
+import { ethers } from "ethers";
 
 export const createToken = async (req: CreateTokenRequest, res: any) => {
   try {
-    const {
-      name,
-      symbol,
-      decimals,
-      supply,
-      description,
-      websiteUrl,
-      telegramUrl,
-      discordUrl,
-      xUrl,
-    } = req.body;
+    const { txHash, description, websiteUrl, telegramUrl, discordUrl, xUrl } =
+      req.body;
 
-    if (!name || !symbol || !decimals || !supply || !description) {
+    if (!txHash || !description) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
@@ -50,36 +43,40 @@ export const createToken = async (req: CreateTokenRequest, res: any) => {
       return res.status(400).json({ message: "Invalid Discord URL." });
     }
 
-    if (decimals < 1 || decimals > 18) {
-      return res
-        .status(400)
-        .json({ message: "Decimals must be between 1 and 18." });
-    }
-
     if (!req.file) {
       return res.status(400).json({ message: "Image file is required." });
     }
 
     const imagePath = `/uploads/${req.file.filename}`;
 
-    const newToken = new Token({
-      name,
-      symbol,
-      decimals,
-      supply,
+    const tokenDeployed = await getTokenDeployedFromTxHash(txHash);
+
+    let token = await Token.findOne({
+      tokenAddress: tokenDeployed.tokenAddress,
+    });
+
+    if (token) return res.status(400).json({ message: "Token existed." });
+
+    if (
+      ethers.getAddress(tokenDeployed.owner) !==
+      ethers.getAddress(req.user.walletAddress)
+    )
+      return res.status(400).json({ message: "Invalid owner." });
+
+    token = new Token({
+      ...tokenDeployed,
       description,
       image: imagePath,
       websiteUrl,
       telegramUrl,
       discordUrl,
       xUrl,
-      owner: req.user.userId,
     });
 
-    await newToken.save();
+    await token.save();
     res
       .status(201)
-      .json({ message: "Token created successfully.", data: newToken });
+      .json({ message: "Token created successfully.", data: token });
   } catch (error) {
     res.status(500).json({ message: "Server error.", error });
   }
@@ -87,13 +84,9 @@ export const createToken = async (req: CreateTokenRequest, res: any) => {
 
 export const tokenDetail = async (req: TokenRequest, res: any) => {
   try {
-    const { id } = req.params;
+    const { address } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid token ID." });
-    }
-
-    const token = await Token.findById(id);
+    const token = await Token.findOne({ tokenAddress: address.toLowerCase() });
     if (!token) {
       return res.status(404).json({ message: "Token not found." });
     }
@@ -137,10 +130,10 @@ export const userTokens = async (req: UserTokensRequest, res: any) => {
     const limit = parseInt(req.query.limit || "10", 10);
     const skip = (page - 1) * limit;
 
-    const tokens = await Token.find({ owner: req.user.userId })
+    const tokens = await Token.find({ owner: req.user.walletAddress })
       .skip(skip)
       .limit(limit);
-    const totalTokens = await Token.countDocuments({ owner: req.user.userId });
+    const totalTokens = await Token.countDocuments({ owner: req.user.walletAddress });
 
     res.json({
       message: "Tokens retrieved.",
