@@ -1,5 +1,18 @@
 import { Request } from "express";
 
+export interface UserRequestRequest extends Request {
+  body: {
+    walletAddress: string;
+  };
+}
+
+export interface LoginWithSignatureRequest extends Request {
+  body: {
+    walletAddress: string;
+    signature: string;
+    message: string;
+  };
+}
 export interface SignUpRequest extends Request {
   body: {
     walletAddress: string;

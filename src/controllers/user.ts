@@ -1,72 +1,61 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { verifyMessage } from "ethers";
 
 import { JWT_EXPIRES_IN, JWT_SECRET } from "../configs/jwt";
 
 import {
   AuthRequest,
-  LoginRequest,
-  SignUpRequest,
+  LoginWithSignatureRequest,
   UpdateProfileRequest,
+  UserRequestRequest,
 } from "../interfaces/request";
 import User from "../models/user";
 import { urlRegex } from "../configs/common";
 
-export const signUp = async (req: SignUpRequest, res: any) => {
+export const requestMessage = async (req: UserRequestRequest, res: any) => {
   try {
-    let { walletAddress, password } = req.body;
+    const { walletAddress } = req.body;
 
-    if (!walletAddress || !password) {
-      return res
-        .status(400)
-        .json({ message: "Wallet address and password are required." });
+    if (!walletAddress) {
+      return res.status(400).json({ message: "Wallet address is required." });
     }
 
-    walletAddress = walletAddress.toLowerCase();
+    const message = `Login request for ${walletAddress} at ${new Date().toISOString()}`;
+    const nonce = crypto.randomBytes(16).toString("hex");
 
-    const existingUser = await User.findOne({ walletAddress });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "Wallet address already registered." });
-    }
+    const fullMessage = `${message} - nonce: ${nonce}`;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ walletAddress, password: hashedPassword });
-    await newUser.save();
-
-    res
-      .status(201)
-      .json({ message: "User registered successfully.", data: newUser });
+    return res.json({ message: fullMessage });
   } catch (error) {
     res.status(500).json({ message: "Server error.", error });
   }
 };
 
-export const signIn = async (req: LoginRequest, res: any) => {
+export const loginWithSignature = async (
+  req: LoginWithSignatureRequest,
+  res: any
+) => {
+  const { walletAddress, signature, message } = req.body;
+
+  if (!walletAddress || !signature || !message) {
+    return res.status(400).json({ message: "Missing required fields." });
+  }
+
   try {
-    let { walletAddress, password } = req.body;
+    const recoveredAddress = verifyMessage(message, signature);
 
-    if (!walletAddress || !password) {
-      return res
-        .status(400)
-        .json({ message: "Wallet address and password are required." });
+    if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+      return res.status(401).json({ message: "Invalid signature." });
     }
 
-    walletAddress = walletAddress.toLowerCase();
-
-    const user = await User.findOne({ walletAddress });
+    let user = await User.findOne({
+      walletAddress: walletAddress.toLowerCase(),
+    });
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "Invalid wallet address or password." });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res
-        .status(400)
-        .json({ message: "Invalid wallet address or password." });
+      user = new User({ walletAddress: walletAddress.toLowerCase() });
+      await user.save();
     }
 
     const token = jwt.sign(
@@ -76,8 +65,10 @@ export const signIn = async (req: LoginRequest, res: any) => {
     );
 
     res.json({ message: "Login successfully.", data: token });
-  } catch (error) {
-    res.status(500).json({ message: "Server error.", error });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Signature verification failed.", error: err });
   }
 };
 

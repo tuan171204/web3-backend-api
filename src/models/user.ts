@@ -9,7 +9,6 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
-  password: { type: String, required: true },
   username: { type: String, default: null },
   bio: { type: String, maxlength: 500, default: null },
   telegramUrl: {
