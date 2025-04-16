@@ -41,35 +41,35 @@ http://localhost:5035
 ---
 
 ## 🔑 Authentication
-### **1. User Sign-up**
+### **1. User Request**
 ```http
-POST /api/users/sign-up
+POST /api/users/request
 Content-Type: application/json
 ```
 #### **Request Body**
 ```json
 {
   "walletAddress": "0x.....",
-  "password": "123456"
 }
 ```
 ✅ **Response:**
 ```json
 {
-  "message": "User registered successfully."
+  "data": "....."
 }
 ```
 
-### **2. User Sign-in**
+### **2. User Login**
 ```http
-POST /api/users/sign-in
+POST /api/users/login
 Content-Type: application/json
 ```
 #### **Request Body**
 ```json
 {
   "walletAddress": "0x",
-  "password": "123456"
+  "signature": "0x",
+  "message": "...."
 }
 ```
 ✅ **Response:**
@@ -79,129 +79,3 @@ Content-Type: application/json
   "data": "eyJhbGciOi..."
 }
 ```
-
-### **3. User Profile**
-```http
-GET /api/users/profile
-Authorization: Bearer <JWT_TOKEN>
-Content-Type: application/json
-```
-✅ **Response:**
-```json
-{
-  "message": "Profile retrieved.",
-  "data": {
-    "walletAddress": "0x....",
-    ....
-  }
-}
-```
-
-### **4. Update User Profile**
-```http
-PUT /api/users/profile
-Authorization: Bearer <JWT_TOKEN>
-Content-Type: application/json
-```
-#### **Request Body**
-```json
-{
-  "bio": "Lorem",
-  "telegramUrl": "https://...",
-  "xUrl": "https://...",
-  "githubUrl": "https://...",
-  "username": "..."
-}
-```
-
-✅ **Response:**
-```json
-{
-  "message": "Profile updated successfully.",
-  "data": {
-    "walletAddress": "0x....",
-    ....
-  }
-}
-```
-
----
-
-## 🎯 Token Management
-### **1. Create Token**
-```http
-POST /api/tokens/
-Authorization: Bearer <JWT_TOKEN>
-Content-Type: multipart/form-data
-```
-#### **Request Body**
-- `image`: Upload an image file
-- `name`: `MyToken`
-- `symbol`: `MTK`
-- `decimals`: `18`
-- `supply`: `1000000`
-- `description`: `This is a test token.`
-
-✅ **Response:**
-```json
-{
-  "message": "Token created successfully.",
-  "data": { "name": "MyToken", "symbol": "MTK", ... }
-}
-```
-
-### **2. Get Token by ID**
-```http
-GET /api/tokens/:id
-```
-✅ **Response:**
-```json
-{
-  "message": "Token detail retrieved.",
-  "data": {
-      "name": "MyToken",
-      "symbol": "MTK",
-      "image": "uploads/1712345678900.png",
-      ...
-  }
- 
-}
-```
-
-### **3. Get All Tokens (Pagination)**
-```http
-GET /api/tokens?page=1&limit=10
-```
-✅ **Response:**
-```json
-{
-  "message": "Tokens retrieved.",
-  "data": [{ "name": "MyToken" }],
-  "pagination": {
-    "total": 1,
-    "page": 1,
-    "limit": 10
-  }
-}
-```
-
-### **4. Get All Tokens By User (Pagination)**
-```http
-GET /api/tokens/user?page=1&limit=10
-Authorization: Bearer <JWT_TOKEN>
-```
-✅ **Response:**
-```json
-{
-  "message": "Tokens retrieved.",
-  "data": [{ "name": "MyToken" }],
-  "pagination": {
-    "total": 1,
-    "page": 1,
-    "limit": 10
-  }
-}
-```
-
----
-
