@@ -79,3 +79,129 @@ Content-Type: application/json
   "data": "eyJhbGciOi..."
 }
 ```
+
+### **3. User Profile**
+```http
+GET /api/users/profile
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+✅ **Response:**
+```json
+{
+  "message": "Profile retrieved.",
+  "data": {
+    "walletAddress": "0x....",
+    ....
+  }
+}
+```
+
+### **4. Update User Profile**
+```http
+PUT /api/users/profile
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+#### **Request Body**
+```json
+{
+  "bio": "Lorem",
+  "telegramUrl": "https://...",
+  "xUrl": "https://...",
+  "githubUrl": "https://...",
+  "username": "..."
+}
+```
+
+✅ **Response:**
+```json
+{
+  "message": "Profile updated successfully.",
+  "data": {
+    "walletAddress": "0x....",
+    ....
+  }
+}
+```
+---
+
+## 🎯 Token Management
+### **1. Create Token**
+```http
+POST /api/tokens/
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: multipart/form-data
+```
+#### **Request Body**
+- `image`: Upload an image file
+- `txHash`: `....`
+- `websiteUrl`: `https://...`
+- `xUrl`: `https://...`
+- `discordUrl`: `https://...`
+- `description`: `This is a test token.`
+
+✅ **Response:**
+```json
+{
+  "message": "Token created successfully.",
+  "data": { "name": "MyToken", "symbol": "MTK", ... }
+}
+```
+
+### **2. Get Token by Address**
+```http
+GET /api/tokens/:address
+```
+✅ **Response:**
+```json
+{
+  "message": "Token detail retrieved.",
+  "data": {
+      "name": "MyToken",
+      "symbol": "MTK",
+      "image": "uploads/1712345678900.png",
+      ...
+  }
+ 
+}
+```
+
+### **3. Get All Tokens (Pagination)**
+```http
+GET /api/tokens?page=1&limit=10
+```
+✅ **Response:**
+```json
+{
+  "message": "Tokens retrieved.",
+  "data": [{ "name": "MyToken" }],
+  "pagination": {
+    "total": 1,
+    "page": 1,
+    "limit": 10
+  }
+}
+```
+
+### **4. Get All Tokens By User (Pagination)**
+```http
+GET /api/tokens/user?page=1&limit=10
+Authorization: Bearer <JWT_TOKEN>
+```
+✅ **Response:**
+```json
+{
+  "message": "Tokens retrieved.",
+  "data": [{ "name": "MyToken" }],
+  "pagination": {
+    "total": 1,
+    "page": 1,
+    "limit": 10
+  }
+}
+```
+
+---
+
+
