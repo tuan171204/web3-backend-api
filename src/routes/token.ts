@@ -12,7 +12,7 @@ const router = Router();
 
 router.post("/", authenticateToken, upload.single("image"), createToken);
 router.get("/user", authenticateToken, userTokens);
-router.get("/:id", tokenDetail);
+router.get("/:address", tokenDetail);
 router.get("/", allTokens);
 
 export default router;
