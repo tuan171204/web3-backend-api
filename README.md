@@ -26,6 +26,9 @@ PORT=5035
 MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority&appName=<appName>
 JWT_SECRET=S3CR3T_K3Y
 JWT_EXPIRES_IN=1d
+
+RPC_URL=https://eth-sepolia.public.blastapi.io
+TOKEN_FACTORY_ADDRESS=0xa67f4aEcE759d95680A457F39A95C974Da592116
 ```
 
 ### **4. Start the server**
